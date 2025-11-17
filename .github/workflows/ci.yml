@@ -1,2 +1,9 @@
-test:
-    script: echo "Hello World"
+name: My Pipeline
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run the test
+        run: echo "This is the test running"
