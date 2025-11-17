@@ -5,6 +5,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Run the test
-        run: 
-            - echo "Building a Laptop"
+      - name: Build and test
+        run: |
+          echo "Building a laptop"
+          mkdir build
+          touch build/computer.txt
+          echo "Mainboard" >> build/computer.txt
+          cat build/computer.txt
+          ls -l
