@@ -1,4 +1,4 @@
-name: My Pipeline
+name: Build Laptop
 on: [push]
 
 jobs:
@@ -6,4 +6,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run the test
-        run: echo "This is the test running"
+        run: 
+            - echo "Building a Laptop"
