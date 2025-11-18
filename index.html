@@ -13,6 +13,7 @@
             background-color: #f0f2f5;
             color: #333;
             margin: 0;
+            padding: 1rem;
         }
         .container {
             background: #ffffff;
@@ -20,6 +21,8 @@
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             text-align: center;
+            max-width: 600px;
+            width: 100%;
         }
         h1 {
             color: #0366d6;
@@ -27,13 +30,56 @@
         p {
             font-size: 1.1rem;
         }
+        #api-status {
+            font-weight: bold;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f6f8fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome to My App!</h1>
         <p>This page is being tested by a GitHub Actions workflow.</p>
-        <p>We are also learning about <strong>OWASP</strong>.</p>
+        <p>We are also using <strong>OWASP</strong>.</p>
+        
+        <hr>
+        <p>Client-Side API Test: <span id="api-status">Running...</span></p>
+        <pre><code id="api-result">Fetching data from jsonplaceholder...</code></pre>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            const statusEl = document.getElementById('api-status');
+            const resultEl = document.getElementById('api-result');
+
+            fetch('https://jsonplaceholder.typicode.com/todos/1')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    statusEl.textContent = 'Success!';
+                    statusEl.style.color = 'green';
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    statusEl.textContent = 'Failed!';
+                    statusEl.style.color = 'red';
+                    resultEl.textContent = 'Error: ' + error.message;
+                });
+        });
+    </script>
 </body>
 </html>
