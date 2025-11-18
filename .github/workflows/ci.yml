@@ -2,21 +2,28 @@ name: Build, Test, Scan, and Deploy to Pages
 on: [push]
 
 jobs:
-
+  # --- JOB 1: TEST FONCTIONNEL ---
   functional-test:
     name: Functional Test
     runs-on: ubuntu-latest
     steps:
       - name: 1. Check out code
         uses: actions/checkout@v4
+        
       - name: 2. Run test commands
         run: |
           echo "Running functional tests..."
           test -f "index.html"
           grep -q "Welcome" index.html
           grep -q "OWASP" index.html
+          
+          echo "Checking for client-side API test code..."
+          grep -q "api-status" index.html
+          grep -q "fetch" index.html
+          
           echo "All functional tests passed!"
 
+  # --- JOB 2: SCAN DE SÉCURITÉ SAST ---
   sast-scan:
     name: SAST Security Scan
     runs-on: ubuntu-latest
@@ -32,25 +39,31 @@ jobs:
         with:
           config: "p/default"
 
+  # --- JOB 3: TEST API PUBLIQUE ---
+  api-test:
+    name: Public API Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: 2. Test JSONPlaceholder API
+        run: |
+          curl -fsS https://jsonplaceholder.typicode.com/todos/1 | jq -e '.id == 1'
+          echo "API test passed!"
+
+  # --- JOB 4: DÉPLOIEMENT SUR GITHUB PAGES ---
   deploy-to-pages:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    # Ne se déploie que si les deux tests réussissent
-    needs: [functional-test, sast-scan]
-    
-    # Donne la permission d'écrire sur la branche gh-pages
+    needs: [functional-test, sast-scan, api-test]
     permissions:
       contents: write
-
     steps:
       - name: 1. Check out code
         uses: actions/checkout@v4
-
       - name: 2. Deploy to GitHub Pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
-          # Token automatique de GitHub
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Publie le contenu de la racine du projet
           publish_dir: .
           keep_files: false
